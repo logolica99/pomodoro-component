@@ -11,7 +11,7 @@ export default function PomodoroComponent() {
   const [mute, setMute] = useState<boolean>(false);
 
   const [timer, setTimer] = useState({
-    pomodoro: 3,
+    pomodoro: 25 * 60,
     shortBreak: 5 * 60,
     longBreak: 15 * 60,
   });
