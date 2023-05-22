@@ -11,10 +11,10 @@ type Position = {
   xRate: number;
   yRate: number;
 };
-type Size = {
-  height: number;
-  width: number;
-};
+// type Size = {
+//   height: number;
+//   width: number;
+// };
 
 const mdTheme = createTheme({
   palette: {
@@ -30,8 +30,7 @@ export default function ItemLayout({ title, children }: IpropType) {
     yRate: 0,
   });
 
-  const onDrag = (e: DraggableEvent, data: DraggableData) => {
-    
+  const onDrag = (_: DraggableEvent, data: DraggableData) => {
     setCurrentPosition({ xRate: data.x, yRate: data.y });
   };
 
