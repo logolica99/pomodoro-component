@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { IconButton, Slider } from "@mui/material";
 import { VolumeOff, VolumeUp } from "@mui/icons-material";
 
@@ -6,13 +6,12 @@ export default function PomodoroComponent() {
   const [settingsOn, setSettingsOn] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
-  const [volume, setVolume] = useState<
-    number | string | Array<number | string>
-  >(50);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState<number>(50);
   const [mute, setMute] = useState<boolean>(false);
 
   const [timer, setTimer] = useState({
-    pomodoro: 25 * 60,
+    pomodoro: 3,
     shortBreak: 5 * 60,
     longBreak: 15 * 60,
   });
@@ -29,12 +28,20 @@ export default function PomodoroComponent() {
   useEffect(() => {
     let interval: any = null;
 
-    if (isActive && activeTimer > 0) {
+    if (isActive && activeTimer >= 0) {
       interval = setInterval(() => {
         setActiveTimer((prevTimer) => prevTimer - 1);
       }, 1000);
-    } else {
-      clearInterval(interval);
+    }
+    if (activeTimer === 0) {
+      setIsActive(false);
+      if (tabState.pomodoro) {
+        setActiveTimer(timer.pomodoro);
+      } else if (tabState.shortBreak) {
+        setActiveTimer(timer.shortBreak);
+      } else if (tabState.longBreak) {
+        setActiveTimer(timer.longBreak);
+      }
     }
 
     return () => clearInterval(interval);
@@ -68,6 +75,12 @@ export default function PomodoroComponent() {
     }
   };
 
+  useEffect(() => {
+    if (activeTimer === 0) {
+      audioRef.current?.play();
+    }
+  }, [activeTimer]);
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
       .toString()
@@ -82,8 +95,19 @@ export default function PomodoroComponent() {
 
   const handleVolumeChange = (event: Event) => {
     const { value } = event.target as HTMLInputElement;
-    setVolume(value);
+    setVolume(parseInt(value));
   };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = volume / 100;
+      audio.play();
+    }
+  }, [volume]);
 
   useEffect(() => {
     setTempTimer(timer);
@@ -92,6 +116,11 @@ export default function PomodoroComponent() {
   return (
     <div className="w-[20rem] py-5 md:w-[26rem]">
       <div className="flex items-center justify-between">
+        <audio
+          id="finishAudio"
+          ref={audioRef}
+          src="/assets/notification_2.mp3"
+        ></audio>
         <p className="text-4xl font-bold text-zinc-400 md:text-5xl ">
           {/* {tabState.pomodoro
             ? formatTime(timer.pomodoro)
