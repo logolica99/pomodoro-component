@@ -4,6 +4,7 @@ import { VolumeOff, VolumeUp } from "@mui/icons-material";
 
 export default function PomodoroComponent() {
   const [settingsOn, setSettingsOn] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   const [volume, setVolume] = useState<
     number | string | Array<number | string>
@@ -22,6 +23,50 @@ export default function PomodoroComponent() {
     shortBreak: false,
     longBreak: false,
   });
+
+  const [activeTimer, setActiveTimer] = useState(timer.pomodoro);
+
+  useEffect(() => {
+    let interval: any = null;
+
+    if (isActive && activeTimer > 0) {
+      interval = setInterval(() => {
+        setActiveTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isActive, activeTimer]);
+
+  useEffect(() => {
+    setIsActive(false);
+    if (tabState.pomodoro) {
+      setActiveTimer(timer.pomodoro);
+    } else if (tabState.shortBreak) {
+      setActiveTimer(timer.shortBreak);
+    } else if (tabState.longBreak) {
+      setActiveTimer(timer.longBreak);
+    }
+  }, [tabState, timer]);
+
+  const startTimer = () => {
+    setIsActive(true);
+  };
+  const pauseTimer = () => {
+    setIsActive(false);
+  };
+  const stopTimer = () => {
+    setIsActive(false);
+    if (tabState.pomodoro) {
+      setActiveTimer(timer.pomodoro);
+    } else if (tabState.shortBreak) {
+      setActiveTimer(timer.shortBreak);
+    } else if (tabState.longBreak) {
+      setActiveTimer(timer.longBreak);
+    }
+  };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -45,37 +90,69 @@ export default function PomodoroComponent() {
   }, [settingsOn]);
 
   return (
-    <div className="min-w-[26rem] py-5">
+    <div className="w-[20rem] py-5 md:w-[26rem]">
       <div className="flex items-center justify-between">
-        <p className="text-5xl font-bold text-zinc-400">
-          {tabState.pomodoro
+        <p className="text-4xl font-bold text-zinc-400 md:text-5xl ">
+          {/* {tabState.pomodoro
             ? formatTime(timer.pomodoro)
             : tabState.shortBreak
             ? formatTime(timer.shortBreak)
-            : formatTime(timer.longBreak)}
+            : formatTime(timer.longBreak)} */}
+          {formatTime(activeTimer)}
         </p>
-        <div className="flex items-center gap-3">
-          <button
-            className="
+        <div className="flex items-center gap-1 md:gap-3">
+          {isActive ? (
+            <button
+              className="
             rounded border
               border-primary
-           px-5
-            py-1 
-            text-primary duration-150 
+              px-3
+
+           py-1
+       
+            text-sm text-primary 
+             duration-150
              ease-in
-         
-          hover:bg-zinc-700
+             hover:bg-zinc-700
+          md:px-5
+          md:text-lg
 
             "
-          >
-            Start
-          </button>
+              onClick={pauseTimer}
+            >
+              Pause
+            </button>
+          ) : (
+            <button
+              className="
+            rounded border
+              border-primary
+              px-3
 
+           py-1
+       
+            text-sm text-primary 
+             duration-150
+             ease-in
+             hover:bg-zinc-700
+          md:px-5
+          md:text-lg
+
+            "
+              onClick={startTimer}
+            >
+              Start
+            </button>
+          )}
           <button
             className="rounded 
-            px-5
-            py-1  text-primary duration-150 ease-in 
-            hover:bg-zinc-700"
+            px-3
+            py-1
+            text-sm
+            text-primary
+            duration-150  ease-in hover:bg-zinc-700 md:px-5 
+            md:text-lg"
+            onClick={stopTimer}
           >
             Reset
           </button>
@@ -87,7 +164,7 @@ export default function PomodoroComponent() {
           <p
             className={`cursor-pointer ${
               tabState.pomodoro && "border-b border-primary"
-            } text-lg text-zinc-400`}
+            } pb-1 text-sm text-zinc-400 md:text-lg`}
             onClick={() => {
               setTabState({
                 pomodoro: true,
@@ -101,7 +178,7 @@ export default function PomodoroComponent() {
           <p
             className={`cursor-pointer  ${
               tabState.shortBreak && "border-b border-primary"
-            } text-lg text-zinc-400`}
+            } pb-1 text-sm text-zinc-400  md:text-lg`}
             onClick={() => {
               setTabState({
                 pomodoro: false,
@@ -115,7 +192,7 @@ export default function PomodoroComponent() {
           <p
             className={`cursor-pointer  ${
               tabState.longBreak && "border-b border-primary"
-            } text-lg text-zinc-400`}
+            } pb-1 text-sm text-zinc-400 md:text-lg`}
             onClick={() => {
               setTabState({
                 pomodoro: false,
@@ -204,9 +281,9 @@ export default function PomodoroComponent() {
 
           <div className="flex justify-between">
             <div className="flex flex-col  items-center gap-1">
-              <p className="text-md   text-zinc-400">Pomodoro</p>
+              <p className="  text-sm text-zinc-400   md:text-base">Pomodoro</p>
               <input
-                className="w-[120px] rounded border border-zinc-700 bg-transparent text-center text-zinc-400 outline-none"
+                className=" w-[6rem] rounded border border-zinc-700 bg-transparent text-center text-zinc-400  outline-none md:w-[7rem]"
                 type="number"
                 min={0}
                 max={100}
@@ -227,9 +304,11 @@ export default function PomodoroComponent() {
               />
             </div>
             <div className="flex flex-col  items-center gap-1">
-              <p className="text-md   text-zinc-400">Short Break</p>
+              <p className="text-sm   text-zinc-400   md:text-base">
+                Short Break
+              </p>
               <input
-                className="w-[120px] rounded border border-zinc-700 bg-transparent text-center text-zinc-400 outline-none"
+                className="w-[6rem] rounded border border-zinc-700 bg-transparent text-center text-zinc-400 outline-none md:w-[7rem]"
                 type="number"
                 min={0}
                 max={100}
@@ -250,9 +329,11 @@ export default function PomodoroComponent() {
               />
             </div>
             <div className="flex flex-col  items-center gap-1">
-              <p className="text-md  text-zinc-400">Long Break</p>
+              <p className="text-sm   text-zinc-400  md:text-base">
+                Long Break
+              </p>
               <input
-                className="w-[120px] rounded border border-zinc-700 bg-transparent text-center text-zinc-400 outline-none"
+                className="w-[6rem] rounded border border-zinc-700 bg-transparent text-center text-zinc-400 outline-none md:w-[7rem]"
                 type="number"
                 min={0}
                 max={100}

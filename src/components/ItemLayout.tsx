@@ -18,8 +18,8 @@ export default function ItemLayout({ title, children }: IpropType) {
   return (
     <ThemeProvider theme={mdTheme}>
       <div className="rounded-md border border-zinc-700 bg-zinc-800 shadow">
-        <div className="flex items-center justify-between border-b border-zinc-700 p-5">
-          <p className="text-xl  text-primary">{title}</p>
+        <div className="flex items-center justify-between border-b border-zinc-700 p-3 md:p-5">
+          <p className="text:lg md:text-xl  text-primary">{title}</p>
           <div className="cursor-pointer p-2 duration-150 ease-in hover:rounded-full hover:bg-zinc-700 ">
             <svg
               width="14"
@@ -35,7 +35,7 @@ export default function ItemLayout({ title, children }: IpropType) {
             </svg>{" "}
           </div>
         </div>
-        <div className="px-5">{children}</div>
+        <div className="px-4 md:px-5">{children}</div>
       </div>
     </ThemeProvider>
   );
