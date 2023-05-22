@@ -77,6 +77,11 @@ export default function PomodoroComponent() {
 
   useEffect(() => {
     if (activeTimer === 0) {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.volume = volume / 100;
+      }
       audioRef.current?.play();
     }
   }, [activeTimer]);
