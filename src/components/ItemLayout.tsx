@@ -2,19 +2,17 @@ import React, { useState } from "react";
 import { createTheme } from "@mui/material/styles";
 import { ThemeProvider } from "@emotion/react";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
+import { ResizableBox } from "react-resizable";
 
 interface IpropType {
   title: String;
   children: React.ReactNode;
+  resizable: boolean;
 }
 type Position = {
   xRate: number;
   yRate: number;
 };
-// type Size = {
-//   height: number;
-//   width: number;
-// };
 
 const mdTheme = createTheme({
   palette: {
@@ -24,11 +22,17 @@ const mdTheme = createTheme({
   },
 });
 
-export default function ItemLayout({ title, children }: IpropType) {
+export default function ItemLayout({
+  title,
+  children,
+  resizable = false,
+}: IpropType) {
   const [currentPosition, setCurrentPosition] = useState<Position>({
     xRate: 0,
     yRate: 0,
   });
+
+  const [isDragging, setIsDragging] = useState(false);
 
   const onDrag = (_: DraggableEvent, data: DraggableData) => {
     setCurrentPosition({ xRate: data.x, yRate: data.y });
@@ -43,11 +47,19 @@ export default function ItemLayout({ title, children }: IpropType) {
           y: currentPosition.yRate,
         }}
         onDrag={onDrag}
+        onStart={() => {
+          setIsDragging(true);
+        }}
+        onStop={() => {
+          setIsDragging(false);
+        }}
         handle="#handlebar"
       >
-        <div className="rounded-md border border-zinc-700 bg-zinc-800 shadow">
+        <div className="absolute rounded-md border border-zinc-700 bg-zinc-800 shadow">
           <div
-            className="flex cursor-move items-center justify-between border-b border-zinc-700 p-3 md:p-5"
+            className={`flex ${
+              isDragging ? "cursor-grabbing" : "cursor-grab"
+            }  items-center justify-between border-b border-zinc-700 p-3 md:p-5`}
             id="handlebar"
           >
             <p className="text:lg text-primary  md:text-xl">{title}</p>
@@ -66,7 +78,18 @@ export default function ItemLayout({ title, children }: IpropType) {
               </svg>{" "}
             </div>
           </div>
-          <div className="px-4 md:px-5">{children}</div>
+          {resizable ? (
+            <ResizableBox
+              width={450}
+              height={450}
+              minConstraints={[150, 150]}
+              maxConstraints={[500, 300]}
+            >
+              <div className="px-4 md:px-5">{children}</div>
+            </ResizableBox>
+          ) : (
+            <div className="px-4 md:px-5">{children}</div>
+          )}
         </div>
       </Draggable>
     </ThemeProvider>
